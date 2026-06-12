@@ -1,0 +1,364 @@
+/* === CSS Variables === */
+:root {
+    --bg: #2b2b2b;
+    --gold: #f0e68c;
+    --red: #c84c09;
+    --brown: #8b4513;
+    --brown-light: #8b7355;
+    --card-bg: #3d2b1f;
+    --cell-bg: #5a4a3a;
+    --cell-border: #6b5335;
+    --text-dim: #8b7355;
+}
+
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: #1a1a1a;
+    color: var(--gold);
+    font-family: 'Courier New', Courier, monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* === CRT Screen Frame === */
+.screen {
+    width: 100%;
+    max-width: 500px;
+    background: var(--bg);
+    border: 4px solid var(--gold);
+    box-shadow:
+        inset 0 0 0 2px var(--bg),
+        inset 0 0 0 4px var(--brown),
+        8px 8px 0 rgba(0,0,0,0.5);
+    padding: 28px 20px;
+    min-height: 600px;
+    position: relative;
+}
+
+/* === View Routing === */
+section[data-view] { display: none; }
+section[data-view].active { display: block; }
+
+/* === Menu Styles === */
+.menu-header { text-align: center; margin-bottom: 24px; }
+.menu-stars {
+    font-size: 16px; letter-spacing: 6px; color: var(--brown); margin-bottom: 6px;
+}
+.menu-title {
+    font-size: 28px; font-weight: 900; letter-spacing: 4px;
+    text-shadow: 4px 4px 0 var(--brown);
+}
+
+/* Carousel */
+.carousel {
+    display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 16px;
+}
+.carousel-arrow {
+    font-size: 28px; color: var(--text-dim); cursor: pointer;
+    padding: 0 4px; user-select: none; transition: color 0.15s;
+}
+.carousel-arrow:hover { color: var(--gold); }
+.carousel-track { display: flex; align-items: center; gap: 2px; }
+
+/* Carousel Cards */
+.carousel-card {
+    border: 2px solid var(--cell-border);
+    padding: 18px 10px; text-align: center; cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+}
+.carousel-card--side {
+    width: 100px; opacity: 0.4; transform: scale(0.85);
+    background: var(--card-bg); box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+}
+.carousel-card--side:hover { opacity: 0.7; }
+.carousel-card--active {
+    width: 150px; background: var(--red); border-color: var(--gold);
+    box-shadow: 6px 6px 0 var(--brown); z-index: 1; border-width: 3px;
+}
+.carousel-card-emoji { font-size: 36px; margin-bottom: 4px; }
+.carousel-card--side .carousel-card-emoji { font-size: 26px; }
+.carousel-card-name {
+    font-size: 22px; font-weight: 900; letter-spacing: 3px;
+}
+.carousel-card--side .carousel-card-name { font-size: 12px; letter-spacing: 1px; }
+.carousel-card-best {
+    font-size: 9px; color: rgba(240,230,140,0.7); margin-top: 4px;
+}
+.carousel-card-start {
+    margin-top: 10px; font-size: 11px; letter-spacing: 2px;
+    background: var(--gold); color: var(--red); display: inline-block;
+    padding: 3px 12px; font-weight: 900;
+}
+
+/* Carousel Dots */
+.carousel-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; }
+.carousel-dot {
+    width: 10px; height: 10px; border: 2px solid var(--text-dim);
+    background: transparent;
+}
+.carousel-dot.active { background: #ffd700; border-color: var(--gold); }
+
+.menu-hint { text-align: center; font-size: 10px; color: var(--text-dim); letter-spacing: 2px; margin-top: 20px; }
+
+/* === Game Header (shared) === */
+.game-header {
+    display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;
+}
+.game-header-left { }
+.game-title { font-size: 16px; font-weight: 900; letter-spacing: 3px; }
+.back-btn {
+    background: none; border: 1px solid var(--text-dim); color: var(--text-dim);
+    font-family: inherit; font-size: 9px; padding: 3px 8px; cursor: pointer;
+    letter-spacing: 1px; margin-top: 6px; transition: color 0.15s, border-color 0.15s;
+}
+.back-btn:hover { color: var(--gold); border-color: var(--gold); }
+.score-label, .counter-label { font-size: 9px; color: var(--text-dim); text-align: center; }
+.score-value, .counter-value { font-size: 24px; font-weight: 900; text-align: center; }
+.score-value { color: #ffd700; }
+.counter-value { color: var(--gold); }
+.best-label { font-size: 8px; color: var(--text-dim); text-align: center; margin-top: 2px; }
+.mine-counter {
+    background: #1a0a00; border: 2px solid var(--text-dim); padding: 4px 12px; text-align: center;
+}
+.game-hint { text-align: center; font-size: 10px; color: var(--text-dim); letter-spacing: 1px; margin-top: 14px; }
+
+/* === 2048 Grid === */
+.grid-2048 {
+    background: var(--card-bg); border: 3px solid var(--text-dim); padding: 8px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+}
+.tile {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900; border: 2px outset var(--cell-border);
+    background: var(--cell-bg); transition: background 0.12s, color 0.12s;
+    color: transparent; user-select: none;
+}
+.tile[data-value] { color: #f9f6f2; }
+.tile-2    { background: #eee4da; color: #776e65 !important; }
+.tile-4    { background: #ede0c8; color: #776e65 !important; }
+.tile-8    { background: #f2b179; }
+.tile-16   { background: #f59563; }
+.tile-32   { background: #f67c5f; }
+.tile-64   { background: #f65e3b; }
+.tile-128  { background: #edcf72; font-size: 22px; }
+.tile-256  { background: #edcc61; font-size: 22px; }
+.tile-512  { background: #edc850; font-size: 22px; }
+.tile-1024 { background: #edc53f; font-size: 18px; }
+.tile-2048 { background: #edc22e; font-size: 18px; }
+.tile-4096,
+.tile-8192 { background: #3c3a32; font-size: 16px; }
+
+@keyframes tile-merge {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+.tile-merged {
+    animation: tile-merge 0.2s ease;
+    z-index: 1;
+}
+
+@keyframes tile-move {
+    from { transform: translate(calc(var(--dc) * (100% + 8px)), calc(var(--dr) * (100% + 8px))); }
+    to   { transform: translate(0, 0); }
+}
+.tile-moved {
+    animation: tile-move 0.15s ease;
+}
+
+@keyframes tile-appear {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+.tile-new {
+    animation: tile-appear 0.15s ease;
+}
+
+/* === Minesweeper Grid === */
+.grid-minesweeper {
+    display: grid; gap: 1px; background: var(--card-bg);
+    border: 3px solid var(--text-dim); padding: 3px;
+    overflow-x: auto;
+}
+.cell {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900; border: 2px outset var(--cell-border);
+    background: var(--cell-bg); cursor: pointer; user-select: none;
+    min-width: 0;
+}
+.cell-revealed { border: 1px inset var(--cell-border); background: #3d2b1f; cursor: default; }
+.cell-flagged { background: #5a3a1a; }
+.cell-exploded { background: #8b0000; }
+.cell-n1 { color: #1976d2; }
+.cell-n2 { color: #388e3c; }
+.cell-n3 { color: #d32f2f; }
+.cell-n4 { color: #7b1fa2; }
+.cell-n5 { color: #c62828; }
+.cell-n6 { color: #00838f; }
+.cell-n7 { color: #424242; }
+.cell-n8 { color: #616161; }
+
+/* === Difficulty Buttons === */
+.difficulty-buttons { display: flex; justify-content: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+/* === Pixel Button === */
+.pixel-btn {
+    font-family: inherit; font-size: 10px; font-weight: 900; letter-spacing: 1px;
+    background: var(--cell-bg); color: var(--text-dim);
+    border: 2px solid var(--text-dim); padding: 6px 14px; cursor: pointer;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.5); transition: background 0.15s, color 0.15s;
+}
+.pixel-btn--active {
+    background: var(--red); color: var(--gold); border-color: var(--gold);
+    box-shadow: 3px 3px 0 var(--brown);
+}
+.pixel-btn:hover { background: var(--red); color: var(--gold); border-color: var(--gold); }
+
+/* === Overlay === */
+.overlay {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.75); z-index: 10;
+}
+.overlay-content {
+    background: var(--bg); border: 3px solid var(--gold); padding: 32px; text-align: center;
+    box-shadow: 6px 6px 0 var(--brown);
+}
+.overlay-content h2 { font-size: 22px; letter-spacing: 3px; margin-bottom: 12px; }
+.overlay-content p { font-size: 14px; margin-bottom: 16px; }
+.win-overlay h2 { color: #ffd700; }
+.lose-overlay h2 { color: #ff4444; }
+
+/* === Sudoku === */
+.sudoku-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.sudoku-meta {
+    display: flex;
+    gap: 8px;
+}
+.sudoku-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 0;
+    border: 3px solid var(--gold);
+    background: var(--gold);
+}
+.sudoku-cell {
+    aspect-ratio: 1;
+    border: 1px solid var(--cell-border);
+    background: var(--cell-bg);
+    color: var(--gold);
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+}
+.sudoku-cell:nth-child(3n) {
+    border-right: 3px solid var(--gold);
+}
+.sudoku-cell:nth-child(9n) {
+    border-right: 1px solid var(--cell-border);
+}
+.sudoku-row-break {
+    border-bottom: 3px solid var(--gold);
+}
+.sudoku-cell--fixed {
+    background: #41301f;
+    color: #ffd700;
+}
+.sudoku-cell--selected {
+    background: var(--red);
+}
+.sudoku-cell--related {
+    background: #6b3c1f;
+}
+.sudoku-cell--error {
+    color: #ff7878;
+}
+.sudoku-pad {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+}
+.sudoku-pad .pixel-btn {
+    padding: 10px 0;
+}
+
+/* === Snake === */
+.snake-board {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 2px;
+    padding: 6px;
+    border: 3px solid var(--text-dim);
+    background: var(--card-bg);
+}
+.snake-cell {
+    aspect-ratio: 1;
+    background: #2f2419;
+    border: 1px solid #4b3927;
+}
+.snake-cell--snake {
+    background: #dca63a;
+}
+.snake-cell--head {
+    background: #ffd700;
+}
+.snake-cell--food {
+    background: #d94a1e;
+}
+.snake-status {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+/* === Small screens === */
+@media (max-width: 560px) {
+    body {
+        padding: 10px;
+    }
+
+    .screen {
+        max-width: 100%;
+        min-height: auto;
+        padding: 18px 12px;
+    }
+
+    .game-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .carousel-card--side {
+        display: none;
+    }
+
+    .carousel-card--active {
+        width: 180px;
+    }
+
+    .sudoku-cell {
+        font-size: 16px;
+    }
+
+    .sudoku-pad {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .counter-value,
+    .score-value {
+        font-size: 20px;
+    }
+}
