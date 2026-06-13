@@ -41,6 +41,16 @@ const App = {
                 return s ? s.toLocaleString() : '--';
             },
             module: GameSnake
+        },
+        {
+            id: 'typing',
+            name: '打 字',
+            emoji: '⌨️',
+            bestText: () => {
+                const ms = Storage.get('best_typing_ms', 0);
+                return ms ? (ms / 1000).toFixed(2) + 's' : '--';
+            },
+            module: GameTyping
         }
     ],
 

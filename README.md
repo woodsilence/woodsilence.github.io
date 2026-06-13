@@ -8,6 +8,7 @@
 - 扫雷
 - 数独
 - 贪吃蛇
+- 打字游戏
 
 ## 运行方式
 
@@ -35,7 +36,8 @@ web_game/
 │   ├── game-2048.js
 │   ├── game-minesweeper.js
 │   ├── game-sudoku.js
-│   └── game-snake.js
+│   ├── game-snake.js
+│   └── game-typing.js
 └── README.md
 ```
 
