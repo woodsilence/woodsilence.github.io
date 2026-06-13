@@ -140,10 +140,12 @@ const GameTyping = {
             if (!e.target.matches('.typing-input')) return;
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
+                e.stopPropagation();
                 this._submitWord();
             }
             if (e.key === 'Escape') {
                 e.preventDefault();
+                e.stopPropagation();
                 this.input = '';
                 this.render();
             }
@@ -184,26 +186,6 @@ const GameTyping = {
         })[ch]);
     },
 
-    _renderTargetWord() {
-        const word = this._currentWord();
-        const chars = [];
-        const maxLen = Math.max(word.length, this.input.length);
-
-        for (let i = 0; i < maxLen; i++) {
-            const typed = this.input[i];
-            const expected = word[i];
-            if (typed === undefined) {
-                chars.push(`<span class="typing-char typing-char--pending">${this._escape(expected)}</span>`);
-            } else if (typed === expected) {
-                chars.push(`<span class="typing-char typing-char--ok">${this._escape(typed)}</span>`);
-            } else {
-                chars.push(`<span class="typing-char typing-char--bad">${this._escape(typed)}</span>`);
-            }
-        }
-
-        return chars.join('');
-    },
-
     _renderWordStream() {
         return this.words.map((word, i) => {
             let cls = 'typing-word';
@@ -213,15 +195,31 @@ const GameTyping = {
         }).join('');
     },
 
-    _renderLog() {
-        const boot = [
-            '<div class="typing-line"><span class="typing-prompt">root@webgame:~$</span> ./typing-drill --words=12</div>',
-            '<div class="typing-line typing-line--dim">loading random word stream... ready</div>'
-        ];
-        const recent = this.completed.slice(-5).map(word =>
-            `<div class="typing-line"><span class="typing-prompt">guest@terminal:~$</span> type ${this._escape(word)} <span class="typing-ok">[OK]</span></div>`
-        );
-        return boot.concat(recent).join('');
+    _getMismatchIndex(word) {
+        for (let i = 0; i < this.input.length; i++) {
+            if (this.input[i] !== word[i]) return i;
+        }
+        return -1;
+    },
+
+    _renderInputVisual(word) {
+        const chars = [];
+        const len = Math.max(word.length, this.input.length);
+
+        for (let i = 0; i < len; i++) {
+            const typed = this.input[i];
+            const expected = word[i];
+
+            if (typed !== undefined) {
+                const ok = typed === expected;
+                const cls = ok ? 'typing-input-char--ok' : 'typing-input-char--bad';
+                chars.push(`<span class="typing-input-char ${cls}">${this._escape(typed)}</span>`);
+            } else if (expected !== undefined) {
+                chars.push(`<span class="typing-input-char typing-input-char--hint">${this._escape(expected)}</span>`);
+            }
+        }
+
+        return chars.join('');
     },
 
     render() {
@@ -229,48 +227,29 @@ const GameTyping = {
         if (!sec) return;
 
         const currentWord = this._currentWord();
-        const hasMismatch = this.input.split('').some((ch, i) => ch !== currentWord[i]);
-        const progress = `${Math.min(this.currentIndex + 1, this.words.length)}/${this.words.length}`;
+        const hasMismatch = this._getMismatchIndex(currentWord) !== -1;
+        const inputVisual = this._renderInputVisual(currentWord);
 
         sec.innerHTML = `
             <div class="game-header">
                 <div class="game-header-left">
-                    <div class="game-title">终端打字</div>
+                    <div class="game-title">打 字</div>
                     <button class="back-btn" onclick="App.backToMenu()">← BACK</button>
                 </div>
-                <div class="mine-counter">
-                    <div class="counter-label">TIME</div>
-                    <div class="counter-value typing-time-value">${this._formatTime(this.elapsedMs)}</div>
-                </div>
-                <div class="mine-counter">
-                    <div class="counter-label">BEST</div>
-                    <div class="counter-value">${this.bestMs ? this._formatTime(this.bestMs) : '--'}</div>
-                </div>
             </div>
-            <div class="typing-terminal">
-                <div class="typing-log">${this._renderLog()}</div>
+            <div class="typing-game">
                 <div class="typing-word-stream">${this._renderWordStream()}</div>
-                <div class="typing-target">
-                    <div class="typing-target-label">TARGET ${progress}</div>
-                    <div class="typing-target-word">${this._renderTargetWord()}</div>
-                </div>
-                <label class="typing-command${hasMismatch ? ' typing-command--error' : ''}" for="typing-input">
-                    <span class="typing-prompt">guest@terminal:~$</span>
-                    <span class="typing-command-name">type</span>
+                <label class="typing-input-shell${hasMismatch ? ' typing-input-shell--error' : ''}" for="typing-input">
+                    <div class="typing-input-visual">${inputVisual}</div>
                     <input id="typing-input" class="typing-input" value="${this._escape(this.input)}" autocomplete="off" spellcheck="false" inputmode="latin" ${this.status === 'won' ? 'disabled' : ''}>
-                    <span class="typing-caret"></span>
                 </label>
             </div>
-            <div class="typing-stats">
-                <div>WORDS ${this.currentIndex}/${this.words.length}</div>
-                <div>ERRORS ${this.errors}</div>
-            </div>
-            <div class="game-hint">输入当前英文单词后按 SPACE / ENTER | ESC 清空</div>
             ${this.status === 'won' ? `
             <div class="overlay">
                 <div class="overlay-content win-overlay">
                     <h2>SESSION COMPLETE</h2>
                     <p>TIME: ${this._formatTime(this.elapsedMs)} | ERRORS: ${this.errors}</p>
+                    <div class="overlay-shortcuts"><kbd>ENTER</kbd> 再来一局 <kbd>ESC</kbd> 主菜单</div>
                     <button class="pixel-btn" onclick="GameTyping.init()">再来一局</button>
                 </div>
             </div>` : ''}

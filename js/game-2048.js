@@ -235,6 +235,7 @@ const Game2048 = {
                 <div class="overlay-content lose-overlay">
                     <h2>GAME OVER</h2>
                     <p>SCORE: ${this.score.toLocaleString()}</p>
+                    <div class="overlay-shortcuts"><kbd>ENTER</kbd> 再来一局 <kbd>ESC</kbd> 主菜单</div>
                     <button class="pixel-btn" onclick="Game2048.init()">再来一局</button>
                 </div>
             </div>` : ''}

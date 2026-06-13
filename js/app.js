@@ -1,11 +1,13 @@
 const App = {
     currentView: 'menu',
-    carouselIndex: 0,
+    selectedIndex: 0,
+    menuNotice: 'SYSTEM READY',
     games: [
         {
             id: '2048',
             name: '2 0 4 8',
-            emoji: '🔢',
+            badge: 'NUM',
+            aliases: ['2048', 'number'],
             bestText: () => {
                 const s = Storage.get('best_2048', 0);
                 return s ? s.toLocaleString() : '--';
@@ -15,7 +17,8 @@ const App = {
         {
             id: 'minesweeper',
             name: '扫 雷',
-            emoji: '💣',
+            badge: 'MINE',
+            aliases: ['minesweeper', 'mine', 'sweep'],
             bestText: () => {
                 const t = Storage.get('best_minesweeper_easy', 0);
                 return t ? t + 's' : '--';
@@ -25,7 +28,8 @@ const App = {
         {
             id: 'sudoku',
             name: '数 独',
-            emoji: '🧩',
+            badge: 'SUD',
+            aliases: ['sudoku'],
             bestText: () => {
                 const t = Storage.get('best_sudoku', 0);
                 return t ? t + 's' : '--';
@@ -35,7 +39,8 @@ const App = {
         {
             id: 'snake',
             name: '贪吃蛇',
-            emoji: '🐍',
+            badge: 'SNK',
+            aliases: ['snake'],
             bestText: () => {
                 const s = Storage.get('best_snake', 0);
                 return s ? s.toLocaleString() : '--';
@@ -45,7 +50,8 @@ const App = {
         {
             id: 'typing',
             name: '打 字',
-            emoji: '⌨️',
+            badge: 'TYPE',
+            aliases: ['typing', 'type', 'terminal'],
             bestText: () => {
                 const ms = Storage.get('best_typing_ms', 0);
                 return ms ? (ms / 1000).toFixed(2) + 's' : '--';
@@ -82,68 +88,123 @@ const App = {
         this.navigateTo('menu');
     },
 
+    _escape(value) {
+        return String(value).replace(/[&<>"']/g, ch => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[ch]);
+    },
+
     renderMenu() {
         const sec = document.querySelector('[data-view="menu"]');
-        const active = this.games[this.carouselIndex];
         const len = this.games.length;
-        const prev = this.games[(this.carouselIndex - 1 + len) % len];
-        const next = this.games[(this.carouselIndex + 1) % len];
 
-        const cardHtml = (game, side) => {
-            const sideCls = side ? ' carousel-card--side' : '';
-            const cls = side ? sideCls : ' carousel-card--active';
+        const signalRows = this.games.map((game, i) => {
+            const activeCls = i === this.selectedIndex ? ' menu-signal--active' : '';
             return `
-                <div class="carousel-card${cls}" data-game="${game.id}">
-                    <div class="carousel-card-emoji">${game.emoji}</div>
-                    <div class="carousel-card-name">${game.name}</div>
-                    <div class="carousel-card-best">BEST: ${game.bestText()}</div>
-                    ${side ? '' : '<div class="carousel-card-start">▶ 开始</div>'}
+                <div class="menu-signal${activeCls}" data-game="${game.id}" data-index="${i}">
+                    <span class="menu-signal-index">[${String(i + 1).padStart(2, '0')}]</span>
+                    <span class="menu-signal-name">${game.badge} / ${game.name}</span>
+                    <span class="menu-signal-best">${game.bestText()}</span>
                 </div>`;
-        };
+        }).join('');
 
         sec.innerHTML = `
-            <div class="menu-header">
-                <div class="menu-stars">★ ★ ★</div>
-                <h1 class="menu-title">游戏合集</h1>
-            </div>
-            <div class="carousel">
-                <div class="carousel-arrow carousel-arrow--left">◀</div>
-                <div class="carousel-track">
-                    ${cardHtml(prev, true)}
-                    ${cardHtml(active, false)}
-                    ${cardHtml(next, true)}
+            <div class="menu-shell">
+                <div class="menu-header">
+                    <div class="menu-stars">ARCADE_OS / ${String(this.selectedIndex + 1).padStart(2, '0')}/${String(len).padStart(2, '0')}</div>
+                    <h1 class="menu-title">游戏合集</h1>
                 </div>
-                <div class="carousel-arrow carousel-arrow--right">▶</div>
+                <div class="menu-signal-list">${signalRows}</div>
+                <div class="menu-notice">${this._escape(this.menuNotice)}</div>
             </div>
-            <div class="carousel-dots">
-                ${this.games.map((g, i) =>
-                    `<div class="carousel-dot${i === this.carouselIndex ? ' active' : ''}"></div>`
-                ).join('')}
-            </div>
-            <div class="menu-hint">← → 选择 | ENTER 开始</div>
         `;
 
-        sec.querySelector('.carousel-arrow--left').onclick = () => this._prev();
-        sec.querySelector('.carousel-arrow--right').onclick = () => this._next();
-        sec.querySelector('.carousel-card--active').onclick = () => this._enter();
-        sec.querySelectorAll('.carousel-card--side').forEach(card => {
-            card.onclick = () => {
-                this.carouselIndex = this.games.findIndex(g => g.id === card.dataset.game);
-                this.renderMenu();
-            };
+        sec.querySelectorAll('.menu-signal').forEach(row => {
+            row.onclick = () => this._selectGame(Number(row.dataset.index), 'TARGET LOCKED');
+            row.ondblclick = () => this._enter();
         });
     },
 
-    _prev() { this.carouselIndex = (this.carouselIndex - 1 + this.games.length) % this.games.length; this.renderMenu(); },
-    _next() { this.carouselIndex = (this.carouselIndex + 1) % this.games.length; this.renderMenu(); },
-    _enter() { this.navigateTo(this.games[this.carouselIndex].id); },
+    _selectGame(index, notice) {
+        if (index < 0 || index >= this.games.length) return;
+        this.selectedIndex = index;
+        this.menuNotice = notice || `TARGET ${this.games[index].id}`;
+        this.renderMenu();
+    },
+
+    _prev() {
+        this._selectGame((this.selectedIndex - 1 + this.games.length) % this.games.length, 'TARGET SHIFT LEFT');
+    },
+    _next() {
+        this._selectGame((this.selectedIndex + 1) % this.games.length, 'TARGET SHIFT RIGHT');
+    },
+    _enter() {
+        this.menuNotice = `EXEC ${this.games[this.selectedIndex].id}`;
+        this.navigateTo(this.games[this.selectedIndex].id);
+    },
+
+    _findGameByCommand(command) {
+        const normalized = command.toLowerCase().replace(/\s+/g, '');
+        return this.games.find(game => {
+            const name = game.name.toLowerCase().replace(/\s+/g, '');
+            return game.id === normalized ||
+                name === normalized ||
+                (game.aliases || []).some(alias => alias === normalized);
+        }) || this.games.find(game => {
+            const aliases = [game.id, game.name.toLowerCase().replace(/\s+/g, ''), ...(game.aliases || [])];
+            return aliases.some(alias => alias.startsWith(normalized));
+        });
+    },
+
+    _activeGame() {
+        return this.games.find(game => game.id === this.currentView);
+    },
+
+    _hasSettlementOverlay() {
+        if (this.currentView === 'menu') return false;
+        const activeSection = document.querySelector(`section[data-view="${this.currentView}"].active`);
+        return !!(activeSection && activeSection.querySelector('.overlay'));
+    },
+
+    _restartCurrentGame() {
+        const game = this._activeGame();
+        if (game && game.module.init) game.module.init();
+    },
 
     _bindGlobalKeys() {
         document.addEventListener('keydown', (e) => {
+            if (this._hasSettlementOverlay()) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    this._restartCurrentGame();
+                    return;
+                }
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    this.backToMenu();
+                    return;
+                }
+            }
+
             if (this.currentView !== 'menu') return;
-            if (e.key === 'ArrowLeft')  { e.preventDefault(); this._prev(); }
-            if (e.key === 'ArrowRight') { e.preventDefault(); this._next(); }
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft')  { e.preventDefault(); this._prev(); }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); this._next(); }
             if (e.key === 'Enter')      { e.preventDefault(); this._enter(); }
+            if (/^[1-9]$/.test(e.key)) {
+                const index = Number(e.key) - 1;
+                if (index < this.games.length) {
+                    e.preventDefault();
+                    this.selectedIndex = index;
+                    this.menuNotice = `EXEC ${this.games[index].id}`;
+                    this.navigateTo(this.games[index].id);
+                }
+            }
         });
     }
 };

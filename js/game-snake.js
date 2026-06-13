@@ -196,8 +196,9 @@ const GameSnake = {
             ${this.status === 'lost' ? `
             <div class="overlay">
                 <div class="overlay-content lose-overlay">
-                    <h2>💥 撞上了</h2>
+                    <h2>CRASH</h2>
                     <p>SCORE: ${this.score}</p>
+                    <div class="overlay-shortcuts"><kbd>ENTER</kbd> 再来一局 <kbd>ESC</kbd> 主菜单</div>
                     <button class="pixel-btn" onclick="GameSnake.init()">再来一局</button>
                 </div>
             </div>` : ''}

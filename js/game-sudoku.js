@@ -192,7 +192,7 @@ const GameSudoku = {
                 </div>
                 <div class="sudoku-meta">
                     <div class="mine-counter">
-                        <div class="counter-label">⏱ TIME</div>
+                        <div class="counter-label">TIME</div>
                         <div class="counter-value sudoku-timer">${this.timer}s</div>
                     </div>
                     <div class="mine-counter">
@@ -212,8 +212,9 @@ const GameSudoku = {
             ${this.status === 'won' ? `
             <div class="overlay">
                 <div class="overlay-content win-overlay">
-                    <h2>✨ 完成数独 ✨</h2>
+                    <h2>SUDOKU CLEAR</h2>
                     <p>TIME: ${this.timer}s</p>
+                    <div class="overlay-shortcuts"><kbd>ENTER</kbd> 再来一局 <kbd>ESC</kbd> 主菜单</div>
                     <button class="pixel-btn" onclick="GameSudoku.init()">再来一局</button>
                 </div>
             </div>` : ''}

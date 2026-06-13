@@ -14,6 +14,12 @@
     --terminal-danger: #ff4f64;
     --terminal-cyan: #4dfff3;
     --terminal-shadow: rgba(0, 255, 65, 0.38);
+    --terminal-font: 'Courier New', 'Lucida Console', Monaco, monospace;
+    --terminal-text-grain:
+        1px 0 rgba(0,255,65,0.32),
+        -1px 0 rgba(0,32,8,0.85),
+        0 1px rgba(199,255,208,0.14),
+        0 0 5px rgba(0,255,65,0.42);
 }
 
 /* === Reset & Base === */
@@ -24,13 +30,35 @@ body {
         radial-gradient(circle at 50% -20%, rgba(0,255,65,0.14), transparent 34%),
         linear-gradient(180deg, #000 0%, #020503 48%, #000 100%);
     color: var(--gold);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: var(--terminal-font);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    text-shadow: 0 0 8px var(--terminal-shadow);
+    font-variant-ligatures: none;
+    text-rendering: optimizeSpeed;
+    text-shadow: var(--terminal-text-grain);
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+.menu-signal,
+.game-title,
+.score-value,
+.counter-value,
+.tile,
+.cell,
+.sudoku-cell,
+.typing-word {
+    font-family: var(--terminal-font);
+    font-variant-ligatures: none;
+    text-rendering: optimizeSpeed;
+    text-shadow: var(--terminal-text-grain);
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* === CRT Screen Frame === */
@@ -60,15 +88,23 @@ body {
     pointer-events: none;
     background:
         linear-gradient(90deg, transparent, rgba(109,255,122,0.08), transparent),
+        repeating-linear-gradient(90deg, rgba(109,255,122,0.035) 0 1px, transparent 1px 3px),
         repeating-linear-gradient(0deg, transparent 0 6px, rgba(0,0,0,0.18) 7px);
     mix-blend-mode: screen;
-    opacity: 0.42;
+    opacity: 0.5;
 }
 .screen::after {
     content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;
+    background:
+        radial-gradient(circle at 12% 18%, rgba(109,255,122,0.16) 0 1px, transparent 1px),
+        radial-gradient(circle at 63% 38%, rgba(109,255,122,0.11) 0 1px, transparent 1px),
+        radial-gradient(circle at 34% 78%, rgba(109,255,122,0.09) 0 1px, transparent 1px),
+        radial-gradient(circle at 84% 66%, rgba(109,255,122,0.13) 0 1px, transparent 1px);
+    background-size: 13px 11px, 17px 19px, 23px 17px, 29px 31px;
+    opacity: 0.28;
     box-shadow: inset 0 0 90px rgba(0,0,0,0.72);
 }
 .screen > section {
@@ -81,68 +117,65 @@ section[data-view] { display: none; }
 section[data-view].active { display: block; }
 
 /* === Menu Styles === */
-.menu-header { text-align: center; margin-bottom: 24px; }
+.menu-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.menu-header { text-align: center; margin-bottom: 2px; }
 .menu-stars {
-    font-size: 16px; letter-spacing: 0; color: var(--text-dim); margin-bottom: 6px;
+    font-size: 10px; letter-spacing: 0; color: var(--terminal-cyan); margin-bottom: 6px;
 }
 .menu-title {
     font-size: 28px; font-weight: 900; letter-spacing: 0;
     color: var(--terminal-bright);
     text-shadow: 0 0 6px var(--terminal-shadow), 0 0 18px rgba(0,255,65,0.24);
 }
-
-/* Carousel */
-.carousel {
-    display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 16px;
+.menu-signal-list {
+    display: grid;
+    gap: 6px;
+    border: 1px solid rgba(43,191,85,0.4);
+    background: rgba(0,0,0,0.22);
+    padding: 8px;
 }
-.carousel-arrow {
-    font-size: 28px; color: var(--text-dim); cursor: pointer;
-    padding: 0 4px; user-select: none; transition: color 0.15s;
+.menu-signal {
+    display: grid;
+    grid-template-columns: 42px 1fr minmax(56px, auto);
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(43,191,85,0.44);
+    background: rgba(0,18,6,0.56);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 11px;
+    min-height: 30px;
+    padding: 6px 8px;
+    transition: background 0.14s, border-color 0.14s, color 0.14s, box-shadow 0.14s;
 }
-.carousel-arrow:hover { color: var(--terminal-bright); text-shadow: 0 0 12px var(--terminal-shadow); }
-.carousel-track { display: flex; align-items: center; gap: 2px; }
-
-/* Carousel Cards */
-.carousel-card {
-    border: 2px solid var(--cell-border);
-    padding: 18px 10px; text-align: center; cursor: pointer;
-    transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s, border-color 0.2s;
-}
-.carousel-card--side {
-    width: 100px; opacity: 0.4; transform: scale(0.85);
-    background: rgba(3,16,6,0.84); box-shadow: 3px 3px 0 rgba(0,0,0,0.65);
-}
-.carousel-card--side:hover { opacity: 0.7; }
-.carousel-card--active {
-    width: 150px; background: rgba(0,255,65,0.12); border-color: var(--terminal-bright);
-    box-shadow: 0 0 18px rgba(0,255,65,0.24), 6px 6px 0 rgba(0,59,24,0.9); z-index: 1; border-width: 3px;
-}
-.carousel-card-emoji { font-size: 36px; margin-bottom: 4px; }
-.carousel-card--side .carousel-card-emoji { font-size: 26px; }
-.carousel-card-name {
-    font-size: 22px; font-weight: 900; letter-spacing: 0;
+.menu-signal:hover {
+    border-color: var(--terminal-bright);
     color: var(--terminal-bright);
+    box-shadow: 0 0 10px rgba(0,255,65,0.16);
 }
-.carousel-card--side .carousel-card-name { font-size: 12px; letter-spacing: 0; }
-.carousel-card-best {
-    font-size: 9px; color: rgba(109,255,122,0.68); margin-top: 4px;
+.menu-signal--active {
+    background: rgba(0,255,65,0.14);
+    border-color: var(--terminal-bright);
+    color: var(--terminal-bright);
+    box-shadow: inset 0 0 14px rgba(0,255,65,0.12), 0 0 14px rgba(0,255,65,0.16);
 }
-.carousel-card-start {
-    margin-top: 10px; font-size: 11px; letter-spacing: 0;
-    background: var(--gold); color: #001604; display: inline-block;
-    padding: 3px 12px; font-weight: 900;
-    box-shadow: 0 0 10px var(--terminal-shadow);
+.menu-signal-index {
+    color: var(--terminal-cyan);
 }
-
-/* Carousel Dots */
-.carousel-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; }
-.carousel-dot {
-    width: 10px; height: 10px; border: 2px solid var(--text-dim);
-    background: transparent;
+.menu-signal-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.carousel-dot.active { background: var(--gold); border-color: var(--terminal-bright); box-shadow: 0 0 10px var(--terminal-shadow); }
-
-.menu-hint { text-align: center; font-size: 10px; color: var(--text-dim); letter-spacing: 0; margin-top: 20px; }
+.menu-signal-best {
+    justify-self: end;
+    color: var(--terminal-warn);
+}
+.menu-notice { text-align: center; font-size: 10px; color: var(--terminal-warn); }
 
 /* === Game Header (shared) === */
 .game-header {
@@ -273,6 +306,25 @@ section[data-view].active { display: block; }
 }
 .overlay-content h2 { font-size: 22px; letter-spacing: 0; margin-bottom: 12px; }
 .overlay-content p { font-size: 14px; margin-bottom: 16px; }
+.overlay-shortcuts {
+    color: var(--text-dim);
+    font-size: 10px;
+    margin: -4px 0 16px;
+}
+.overlay-shortcuts kbd {
+    display: inline-block;
+    border: 1px solid var(--terminal-bright);
+    background: rgba(0,255,65,0.12);
+    color: var(--terminal-bright);
+    font: inherit;
+    font-size: 9px;
+    padding: 2px 6px;
+    margin: 0 5px 0 10px;
+    box-shadow: 0 0 8px rgba(0,255,65,0.16);
+}
+.overlay-shortcuts kbd:first-child {
+    margin-left: 0;
+}
 .win-overlay h2 { color: var(--terminal-bright); }
 .lose-overlay h2 { color: var(--terminal-danger); }
 
@@ -374,47 +426,27 @@ section[data-view].active { display: block; }
     margin-bottom: 12px;
 }
 
-/* === Typing Terminal === */
-.typing-terminal {
-    background: rgba(0,18,6,0.94);
-    border: 3px solid var(--text-dim);
-    box-shadow: inset 0 0 24px rgba(0,255,65,0.1), 0 0 14px rgba(0,255,65,0.12);
-    min-height: 340px;
-    padding: 14px;
-}
-.typing-log {
-    min-height: 116px;
-    border-bottom: 1px solid rgba(109,255,122,0.22);
-    padding-bottom: 10px;
-    margin-bottom: 12px;
-    overflow: hidden;
-}
-.typing-line {
-    color: var(--terminal-bright);
-    font-size: 11px;
-    line-height: 1.6;
-    white-space: nowrap;
-}
-.typing-line--dim {
-    color: var(--text-dim);
-}
-.typing-prompt {
-    color: var(--terminal-cyan);
-}
-.typing-ok {
-    color: var(--terminal-bright);
+/* === Typing Game === */
+.typing-game {
+    display: grid;
+    gap: 18px;
 }
 .typing-word-stream {
     display: flex;
     flex-wrap: wrap;
-    gap: 7px;
-    margin-bottom: 14px;
+    gap: 8px;
+    align-content: flex-start;
+    min-height: 190px;
+    border: 2px solid var(--text-dim);
+    background: rgba(0,18,6,0.78);
+    padding: 14px;
+    box-shadow: inset 0 0 18px rgba(0,255,65,0.08);
 }
 .typing-word {
     border: 1px solid rgba(43,191,85,0.55);
     color: var(--text-dim);
-    font-size: 11px;
-    padding: 4px 7px;
+    font-size: 13px;
+    padding: 6px 9px;
     background: rgba(0,0,0,0.18);
 }
 .typing-word--done {
@@ -429,79 +461,60 @@ section[data-view].active { display: block; }
     text-shadow: none;
     box-shadow: 0 0 12px var(--terminal-shadow);
 }
-.typing-target {
-    border: 1px solid rgba(109,255,122,0.28);
-    background: rgba(0,0,0,0.22);
-    padding: 10px;
-    margin-bottom: 12px;
-}
-.typing-target-label {
-    color: var(--text-dim);
-    font-size: 10px;
-    margin-bottom: 6px;
-}
-.typing-target-word {
-    min-height: 31px;
-    color: var(--terminal-bright);
-    font-size: 26px;
-    font-weight: 900;
-    line-height: 1.2;
-    overflow-wrap: anywhere;
-}
-.typing-char--pending {
-    color: rgba(109,255,122,0.42);
-}
-.typing-char--ok {
-    color: var(--terminal-bright);
-}
-.typing-char--bad {
-    color: var(--terminal-danger);
-    text-decoration: underline;
-}
-.typing-command {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    min-height: 34px;
-    border: 1px solid rgba(43,191,85,0.55);
-    background: rgba(0,0,0,0.34);
-    padding: 7px 9px;
+.typing-input-shell {
+    position: relative;
+    display: block;
+    border: 2px solid var(--terminal-bright);
+    background: rgba(0,0,0,0.42);
+    box-shadow: 0 0 16px rgba(0,255,65,0.18), inset 0 0 18px rgba(0,255,65,0.08);
     cursor: text;
 }
-.typing-command--error {
+.typing-input-visual {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    font-size: 30px;
+    font-weight: 900;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.typing-input-char {
+    min-width: 0.62em;
+}
+.typing-input-char--hint {
+    color: rgba(109,255,122,0.2);
+    text-shadow: none;
+}
+.typing-input-char--ok {
+    color: var(--terminal-bright);
+    text-shadow: var(--terminal-text-grain);
+}
+.typing-input-char--bad {
+    color: var(--terminal-danger);
+    text-shadow: 1px 0 rgba(255,79,100,0.35), 0 0 8px rgba(255,79,100,0.42);
+}
+.typing-input-shell--error {
     border-color: var(--terminal-danger);
     box-shadow: 0 0 12px rgba(255,79,100,0.22);
 }
-.typing-command-name {
-    color: var(--text-dim);
-}
 .typing-input {
-    flex: 1;
-    min-width: 0;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 62px;
     border: 0;
     outline: 0;
     background: transparent;
-    color: var(--terminal-bright);
+    color: transparent;
+    caret-color: var(--terminal-bright);
     font: inherit;
-    font-size: 16px;
-    text-shadow: 0 0 8px var(--terminal-shadow);
-}
-.typing-caret {
-    width: 8px;
-    height: 18px;
-    background: var(--terminal-bright);
-    box-shadow: 0 0 10px var(--terminal-shadow);
-    animation: typing-caret-blink 0.9s steps(2, start) infinite;
-}
-.typing-stats {
-    display: flex;
-    justify-content: space-between;
-    color: var(--text-dim);
-    font-size: 10px;
-    margin-top: 10px;
-}
-@keyframes typing-caret-blink {
-    50% { opacity: 0; }
+    font-size: 30px;
+    font-weight: 900;
+    padding: 0 18px;
+    text-shadow: none;
 }
 
 /* === Small screens === */
@@ -521,12 +534,11 @@ section[data-view].active { display: block; }
         gap: 10px;
     }
 
-    .carousel-card--side {
-        display: none;
-    }
-
-    .carousel-card--active {
-        width: 180px;
+    .menu-signal {
+        grid-template-columns: 34px 1fr minmax(46px, auto);
+        gap: 6px;
+        font-size: 10px;
+        padding: 6px;
     }
 
     .sudoku-cell {
@@ -542,16 +554,17 @@ section[data-view].active { display: block; }
         font-size: 20px;
     }
 
-    .typing-terminal {
-        min-height: 320px;
+    .typing-word-stream {
+        min-height: 170px;
         padding: 10px;
     }
 
-    .typing-target-word {
-        font-size: 22px;
+    .typing-input,
+    .typing-input-shell::before {
+        font-size: 24px;
     }
 
-    .typing-line {
-        font-size: 10px;
+    .typing-input {
+        height: 56px;
     }
 }

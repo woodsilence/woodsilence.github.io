@@ -237,16 +237,16 @@ const GameMinesweeper = {
             if (cell.revealed) {
                 cls += ' cell-revealed';
                 if (cell.mine && this.status === 'lost') {
-                    text = '💥';
+                    text = 'X';
                     cls += ' cell-exploded';
                 } else if (cell.mine) {
-                    text = '💣';
+                    text = '*';
                 } else if (cell.adj > 0) {
                     text = cell.adj;
                     cls += ` cell-n${cell.adj}`;
                 }
             } else if (cell.flagged) {
-                text = '🚩';
+                text = 'F';
                 cls += ' cell-flagged';
             }
             return `<div class="${cls}" data-r="${r}" data-c="${c}">${text}</div>`;
@@ -264,11 +264,11 @@ const GameMinesweeper = {
                     <button class="back-btn" onclick="App.backToMenu()">← BACK</button>
                 </div>
                 <div class="mine-counter">
-                    <div class="counter-label">💣 REMAIN</div>
+                    <div class="counter-label">MINE REMAIN</div>
                     <div class="counter-value">${remaining}</div>
                 </div>
                 <div class="mine-counter">
-                    <div class="counter-label">⏱ TIME</div>
+                    <div class="counter-label">TIME</div>
                     <div class="counter-value timer-value">${String(this.timer).padStart(3, '0')}</div>
                 </div>
             </div>
@@ -280,15 +280,17 @@ const GameMinesweeper = {
             ${this.status === 'won' ? `
             <div class="overlay">
                 <div class="overlay-content win-overlay">
-                    <h2>✨ 恭喜通关 ✨</h2>
+                    <h2>CLEAR</h2>
                     <p>TIME: ${this.timer}s${bestTime ? ' | BEST: ' + bestTime + 's' : ''}</p>
+                    <div class="overlay-shortcuts"><kbd>ENTER</kbd> 再来一局 <kbd>ESC</kbd> 主菜单</div>
                     <button class="pixel-btn" onclick="GameMinesweeper.init('${this.difficulty}')">再来一局</button>
                 </div>
             </div>` : ''}
             ${this.status === 'lost' ? `
             <div class="overlay">
                 <div class="overlay-content lose-overlay">
-                    <h2>💥 GAME OVER</h2>
+                    <h2>GAME OVER</h2>
+                    <div class="overlay-shortcuts"><kbd>ENTER</kbd> 再来一局 <kbd>ESC</kbd> 主菜单</div>
                     <button class="pixel-btn" onclick="GameMinesweeper.init('${this.difficulty}')">再来一局</button>
                 </div>
             </div>` : ''}
